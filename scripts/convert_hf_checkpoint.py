@@ -56,12 +56,12 @@ def convert_hf_checkpoint(
     with open(model_map_json) as json_map:
         bin_index = json.load(json_map)
 
-    # SEC-FIX: Validate the untrusted JSON schema from index files to prevent unhandled KeyError/TypeError exceptions
-    # which can be exploited to expose internal stack traces or cause DoS.
     if not isinstance(bin_index, dict):
-        raise ValueError("Expected a JSON dictionary")
-    if "weight_map" not in bin_index or not isinstance(bin_index["weight_map"], dict):
-        raise ValueError("Missing or invalid 'weight_map'")
+        raise ValueError("Invalid index file: root must be a JSON object")
+    if "weight_map" not in bin_index:
+        raise ValueError("Invalid index file: missing 'weight_map' key")
+    if not isinstance(bin_index["weight_map"], dict):
+        raise ValueError("Invalid index file: 'weight_map' must be a JSON object")
 
     weight_map = {
         "model.embed_tokens.weight": "tok_embeddings.weight",
